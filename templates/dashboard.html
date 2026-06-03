@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudVault | Keşfet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0e1015; color: #e2e8f0; }
+        .navbar { background: rgba(14, 16, 21, 0.9); border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 15px 0; backdrop-filter: blur(10px); }
+        .navbar-brand { font-weight: 800; color: #ffffff; letter-spacing: 1px; }
+        .navbar-brand span { color: #ff9900; }
+        .nav-link { color: #a0aec0; font-weight: 500; transition: color 0.3s; }
+        .nav-link:hover { color: #ffffff; }
+        .btn-aws { background-color: #ff9900; color: #000; font-weight: 700; border: none; transition: all 0.3s; border-radius: 8px; }
+        .btn-aws:hover { background-color: #ffaa33; transform: translateY(-2px); box-shadow: 0 0 15px rgba(255, 153, 0, 0.4); }
+        
+        /* Modal ve Form Stilleri */
+        .modal-content { background-color: #12151c; border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        .modal-header { border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+        .form-control { background: rgba(0,0,0,0.3); border: 1px dashed rgba(255,255,255,0.2); color: white; border-radius: 8px; padding: 12px; transition: border-color 0.3s; }
+        .form-control:focus { background: rgba(0,0,0,0.5); border-color: #ff9900; box-shadow: 0 0 10px rgba(255, 153, 0, 0.2); outline: none; border-style: solid; }
+        
+        /* Masonry Grid (Akış) Yapısı */
+        .masonry-grid { column-count: 4; column-gap: 1.5rem; }
+        @media (max-width: 1200px) { .masonry-grid { column-count: 3; } }
+        @media (max-width: 992px) { .masonry-grid { column-count: 2; } }
+        @media (max-width: 576px) { .masonry-grid { column-count: 1; } }
+        
+        .masonry-item { break-inside: avoid; margin-bottom: 1.5rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s; }
+        .masonry-item:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 153, 0, 0.1); border-color: rgba(255, 153, 0, 0.3); }
+        
+        /* Medya Stilleri */
+        .media-wrapper { position: relative; width: 100%; background-color: #000; overflow: hidden; }
+        .media-wrapper img, .media-wrapper video { width: 100%; max-height: 500px; display: block; object-fit: contain; }
+        .media-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; cursor: zoom-in; }
+        .media-wrapper:hover .media-overlay { opacity: 1; }
+        .zoom-icon { font-size: 2.5rem; color: rgba(255, 255, 255, 0.8); text-shadow: 0 5px 15px rgba(0,0,0,0.5); transform: scale(0.8); transition: transform 0.3s ease; }
+        .media-wrapper:hover .zoom-icon { transform: scale(1); }
+        .file-icon-area { height: 200px; display: flex; align-items: center; justify-content: center; font-size: 4rem; background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.2) 100%); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        /* Modal Arka Planını Bulanıklaştırma */
+        .modal-backdrop.show { opacity: 1 !important; background-color: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); }
+
+        .masonry-body { padding: 15px; }
+        .post-author { color: #ff9900; font-weight: bold; font-size: 0.9rem; }
+        .post-desc { color: #e2e8f0; font-size: 0.95rem; margin-top: 8px; margin-bottom: 12px; line-height: 1.5; }
+        .file-meta { font-size: 0.75rem; color: #64748b; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px; display: inline-block; }
+        
+        .action-btns { display: flex; gap: 8px; }
+        .btn-action { flex: 1; padding: 6px; font-size: 0.85rem; font-weight: 600; border-radius: 6px; transition: all 0.2s; text-align: center; text-decoration: none; }
+        .btn-download { background: rgba(255, 255, 255, 0.05); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-download:hover { background: rgba(255, 153, 0, 0.1); color: #ff9900; border-color: rgba(255, 153, 0, 0.3); }
+        .btn-delete { background: rgba(220, 53, 69, 0.05); color: #ff6b6b; border: 1px solid rgba(220, 53, 69, 0.2); }
+        .btn-delete:hover { background: #dc3545; color: #fff; border-color: #dc3545; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand" href="{{ url_for('dashboard') }}">☁️ Cloud<span>Vault</span></a>
+
+        <div class="d-flex align-items-center">
+            <button type="button" class="btn btn-aws me-4 shadow-sm px-3" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                ➕ Yeni Paylaşım
+            </button>
+
+            <a href="{{ url_for('profile') }}" class="nav-link me-3 fw-bold text-white d-flex align-items-center">
+                {% if session.kullanici_pp %}
+                    <img src="{{ url_for('view', filename=session.kullanici_pp) }}" class="rounded-circle me-2" style="width: 28px; height: 28px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-secondary rounded-circle me-2 d-flex justify-content-center align-items-center" style="width: 28px; height: 28px; font-size: 12px;">
+                        {{ session.kullanici[0]|upper }}
+                    </div>
+                {% endif %}
+                {{ session.kullanici }}
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-danger">Çıkış</a>
+        </div>
+    </div>
+</nav>
+
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title">Buluta Dosya Yükle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label class="form-label text-warning">1. Medya Seçimi - AWS S3</label>
+                        <input class="form-control" type="file" name="dosya" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-info">2. Gönderi Açıklaması - MongoDB</label>
+                        <textarea name="aciklama" class="form-control" rows="3" placeholder="Bu gönderi hakkında ne düşünüyorsun?"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-aws w-100 py-2 fs-6">🚀 Buluta Yükle</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} rounded-3 mb-4" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="text-white fw-bold m-0">🌍 Global Akış</h4>
+        <span class="text-secondary small">AWS S3 + MongoDB Atlas</span>
+    </div>
+
+    {% if gonderiler %}
+        <div class="masonry-grid">
+            {% for dosya in gonderiler %}
+                {% set uzanti = dosya.gosterilen_isim.split('.')[-1] | lower %}
+                <div class="masonry-item shadow-sm">
+
+                    {% if uzanti in ['png', 'jpg', 'jpeg', 'gif', 'webp'] %}
+                        <div class="media-wrapper" data-bs-toggle="modal" data-bs-target="#viewModal{{ loop.index }}">
+                            <img src="{{ url_for('view', filename=dosya.id) }}" alt="Gönderi" loading="lazy">
+                            <div class="media-overlay">
+                                <span class="zoom-icon">🔍</span>
+                            </div>
+                        </div>
+                    {% elif uzanti in ['mp4', 'mov', 'avi', 'webm'] %}
+                        <div class="media-wrapper">
+                            <video controls preload="metadata">
+                                <source src="{{ url_for('view', filename=dosya.id) }}" type="video/{{ 'mp4' if uzanti == 'mov' else uzanti }}">
+                                Tarayıcınız video oynatmayı desteklemiyor.
+                            </video>
+                        </div>
+                    {% elif uzanti in ['pdf', 'doc', 'docx', 'txt'] %}
+                        <div class="file-icon-area">📄</div>
+                    {% else %}
+                        <div class="file-icon-area">📁</div>
+                    {% endif %}
+
+                    <div class="masonry-body">
+                        <div class="d-flex align-items-center mb-2">
+                            {% if dosya.sahip_pp %}
+                                <img src="{{ url_for('view', filename=dosya.sahip_pp) }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.9rem; font-weight: bold;">
+                                    {{ dosya.sahip[0]|upper }}
+                                </div>
+                            {% endif %}
+                            <span class="post-author">{{ dosya.sahip }}</span>
+                        </div>
+
+                        {% if dosya.aciklama %}
+                            <div class="post-desc">{{ dosya.aciklama }}</div>
+                        {% endif %}
+
+                        <div class="file-meta">☁️ {{ dosya.boyut }} KB | {{ dosya.tarih_gosterim }}</div>
+
+                        <div class="action-btns">
+                            <a href="{{ url_for('download', filename=dosya.id) }}" class="btn btn-action btn-download">İndir</a>
+                            {% if dosya.sahip == session.kullanici %}
+                                <a href="{{ url_for('delete', filename=dosya.id) }}" class="btn btn-action btn-delete" onclick="return confirm('Bu veriyi hem S3 hem MongoDB üzerinden silmek istediğinize emin misiniz?')">Sil</a>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-3">
+    <form action="{{ url_for('like', post_id=dosya.id) }}" method="post" class="d-inline">
+        <button type="submit" class="btn btn-sm {{ 'btn-danger' if session.kullanici in dosya.get('begenenler', []) else 'btn-outline-secondary' }}">
+            ❤️ {{ dosya.get('begenenler', [])|length }}
+        </button>
+    </form>
+
+    <form action="{{ url_for('comment', post_id=dosya.id) }}" method="post" class="mt-2">
+        <div class="input-group">
+            <input type="text" name="yorum_metni" class="form-control bg-dark text-white border-secondary" placeholder="Yorum ekle..." required>
+            <button type="submit" class="btn btn-outline-secondary">Gönder</button>
+        </div>
+    </form>
+
+    <div class="mt-2 small text-secondary" style="max-height: 100px; overflow-y: auto;">
+        {% for yorum in dosya.get('yorumlar', []) %}
+            <div class="mb-1">
+                <b class="text-white">{{ yorum.kullanici }}:</b> {{ yorum.metin }}
+                <div class="text-muted" style="font-size: 0.7rem;">{{ yorum.tarih }}</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center text-muted py-5" style="background: rgba(255,255,255,0.02); border-radius: 15px; border: 1px dashed rgba(255,255,255,0.1);">
+            <div style="font-size: 3rem; margin-bottom: 15px;">☁️</div>
+            <p>S3 kovanı şu an boş. Üst menüden ilk dosyayı sen yükleyebilirsin.</p>
+        </div>
+    {% endif %}
+
+</div>
+
+{% if gonderiler %}
+    {% for dosya in gonderiler %}
+        {% set uzanti = dosya.gosterilen_isim.split('.')[-1] | lower %}
+        {% if uzanti in ['png', 'jpg', 'jpeg', 'gif', 'webp'] %}
+        <div class="modal fade" id="viewModal{{ loop.index }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content bg-transparent border-0 shadow-none">
+                    <div class="modal-header border-0 pb-0 justify-content-end">
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat" style="filter: invert(1); z-index: 1055;"></button>
+                    </div>
+                    <div class="modal-body text-center p-0 position-relative">
+                        <img src="{{ url_for('view', filename=dosya.id) }}" class="img-fluid rounded" style="max-height: 85vh; object-fit: contain; box-shadow: 0 15px 50px rgba(0,0,0,0.8);" alt="Görsel">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

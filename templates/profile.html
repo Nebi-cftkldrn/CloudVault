@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudVault | Hesabım</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0e1015; color: #e2e8f0; }
+        .navbar { background: rgba(14, 16, 21, 0.9); border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 15px 0; backdrop-filter: blur(10px); }
+        .navbar-brand { font-weight: 800; color: #ffffff; letter-spacing: 1px; }
+        .navbar-brand:hover { color: #ff9900; }
+        .nav-link { color: #a0aec0; font-weight: 500; transition: color 0.3s; }
+        .nav-link:hover { color: #ffffff; }
+        .nav-link.active { color: #ff9900; }
+        .glass-panel { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .form-control { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; padding: 12px; transition: border-color 0.3s; }
+        .form-control:focus { background: rgba(0,0,0,0.5); border-color: #ff9900; color: white; box-shadow: 0 0 10px rgba(255, 153, 0, 0.2); outline: none; }
+        .form-label { color: #64748b; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .btn-aws { background-color: #ff9900; color: #000; font-weight: 700; border: none; transition: all 0.3s; padding: 12px; }
+        .btn-aws:hover { background-color: #ffaa33; transform: translateY(-2px); box-shadow: 0 0 15px rgba(255, 153, 0, 0.4); }
+        
+        /* ---------------------------------------------------
+           TABLO STİLLERİ (BEYAZ ARKA PLAN DÜZELTİLDİ) 
+           --------------------------------------------------- */
+        .table { --bs-table-bg: transparent; color: #e2e8f0; margin-bottom: 0; }
+        .table-hover tbody tr:hover { background-color: rgba(255, 255, 255, 0.04) !important; color: #fff; transition: background-color 0.2s; }
+        .table thead th { border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; border-top: none; }
+        .table td { border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; vertical-align: middle; color: #cbd5e1; }
+        .table a.file-name-link { color: #6ba4ff; text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        .table a.file-name-link:hover { color: #ff9900; }
+
+        /* ---------------------------------------------------
+           ZAMAN ÇİZELGESİ (SON HAREKETLERİM) STİLLERİ 
+           --------------------------------------------------- */
+        .activity-feed { position: relative; padding-left: 30px; border-left: 2px solid rgba(255, 255, 255, 0.05); margin-left: 15px; margin-top: 20px; }
+        .feed-item { position: relative; margin-bottom: 25px; }
+        .feed-item:last-child { margin-bottom: 0; }
+        .feed-icon { position: absolute; left: -47px; top: 0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; background-color: #12151c; border: 2px solid rgba(255, 255, 255, 0.1); box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .feed-text { color: #cbd5e1; font-size: 0.95rem; line-height: 1.5; }
+        .feed-date { color: #64748b; font-size: 0.8rem; display: block; margin-top: 4px; }
+
+        .profile-img { width: 90px; height: 90px; object-fit: cover; border-radius: 50%; border: 2px solid rgba(255,153,0,0.6); }
+        .btn-edit-toggle { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #a0aec0; border-radius: 6px; padding: 5px 12px; font-size: 0.85rem; transition: all 0.3s; }
+        .btn-edit-toggle:hover { background: rgba(255, 153, 0, 0.1); color: #ff9900; border-color: #ff9900; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('dashboard') }}">☁️ CloudVault</a>
+        <div class="d-flex align-items-center">
+            <span class="text-secondary me-4 d-none d-md-block">Hoş geldin, <span class="text-white fw-bold">{{ session.kullanici }}</span></span>
+            <a href="{{ url_for('dashboard') }}" class="nav-link me-3">Keşfet</a>
+            <a href="{{ url_for('profile') }}" class="nav-link active me-3">Hesabım</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-danger">Güvenli Çıkış</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} rounded-3 mb-4" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="glass-panel text-center">
+                {% if user and user.profil_fotografi %}
+                    <img src="{{ url_for('view', filename=user.profil_fotografi) }}" class="profile-img mb-3" alt="Profil Fotoğrafı">
+                {% else %}
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm mb-3" style="width: 90px; height: 90px; font-size: 2.8rem; font-weight: bold;">
+                        {{ kullanici_adi[0]|upper }}
+                    </div>
+                {% endif %}
+
+                <h4 class="text-white fw-bold">{{ kullanici_adi }}</h4>
+                <p class="text-muted small mb-2">Kayıt: {{ user.kayit_tarihi if user else '-' }}</p>
+                <p class="text-secondary small">{{ user.biyografi if user and user.biyografi else 'Henüz biyografi eklenmedi.' }}</p>
+            </div>
+
+            <div class="glass-panel">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="text-white fw-bold m-0">Hesap Ayarları</h5>
+                    <button class="btn-edit-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#editProfileCollapse" aria-expanded="false" aria-controls="editProfileCollapse">
+                        ✏️ Düzenle
+                    </button>
+                </div>
+
+                <div class="collapse mt-4" id="editProfileCollapse">
+                    <form action="{{ url_for('edit_profile') }}" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">E-posta Adresi</label>
+                            <input type="email" name="email" class="form-control" value="{{ user.email if user else '' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Telefon Numarası</label>
+                            <input type="tel" name="telefon" class="form-control" value="{{ user.telefon if user else '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Biyografi</label>
+                            <textarea name="biyografi" class="form-control" rows="3">{{ user.biyografi if user and user.biyografi else '' }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Profil Fotoğrafı (S3)</label>
+                            <input type="file" name="profil_fotografi" class="form-control">
+                        </div>
+
+                        <hr style="border-color: rgba(255,255,255,0.1);">
+
+                        <div class="mb-4">
+                            <label class="form-label text-warning">Yeni Şifre</label>
+                            <input type="password" name="yeni_sifre" class="form-control" placeholder="Değiştirmeyecekseniz boş bırakın">
+                        </div>
+
+                        <button type="submit" class="btn btn-aws w-100">Bilgileri Güncelle</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="glass-panel mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="text-white fw-bold m-0">Kişisel Kasanız</h5>
+                    <span class="badge bg-secondary">{{ dosyalar|length }} Dosya</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Dosya Adı</th>
+                                <th>Boyut</th>
+                                <th>Yükleme Tarihi</th>
+                                <th class="text-end">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if dosyalar %}
+                                {% for dosya in dosyalar %}
+                                <tr>
+                                    <td><a href="{{ url_for('view', filename=dosya.id) }}" target="_blank" class="file-name-link">{{ dosya.gosterilen_isim }}</a></td>
+                                    <td>{{ dosya.boyut }} KB</td>
+                                    <td>{{ dosya.tarih_gosterim }}</td>
+                                    <td class="text-end">
+                                        <a href="{{ url_for('download', filename=dosya.id) }}" class="btn btn-sm btn-outline-primary me-2">İndir</a>
+                                        <a href="{{ url_for('delete', filename=dosya.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bu dosyayı silmek istediğinize emin misiniz?')">Sil</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan=\"4\" class="text-center text-muted py-5">
+                                        Kasanız şu an boş. <a href="{{ url_for('dashboard') }}" style="color: #ff9900;">Keşfet</a> ekranından yeni bir dosya yükleyebilirsiniz.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="glass-panel">
+                <h5 class="text-white fw-bold mb-3">Son Hareketlerim</h5>
+                
+                <div class="activity-feed">
+                    {% if dosyalar %}
+                        {% for dosya in dosyalar[:5] %}
+                        <div class="feed-item">
+                            <div class="feed-icon" style="color: #3b82f6; border-color: rgba(59, 130, 246, 0.3);">☁️</div>
+                            <div class="feed-text">
+                                <span class="text-white fw-bold">{{ dosya.gosterilen_isim }}</span> adlı dosyayı AWS S3 kasanıza yüklediniz.
+                                <span class="feed-date">{{ dosya.tarih_gosterim }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="feed-item">
+                        <div class="feed-icon" style="color: #10b981; border-color: rgba(16, 185, 129, 0.3);">🎉</div>
+                        <div class="feed-text">
+                            CloudVault sistemine kayıt oldunuz. Bulut yolculuğunuz başladı!
+                            <span class="feed-date">{{ user.kayit_tarihi if user else '-' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

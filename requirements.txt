@@ -1,0 +1,6 @@
+Flask
+python-dotenv
+boto3
+pymongo
+certifi
+Werkzeug

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudVault | Sisteme Giriş</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0e1015; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; }
+        body::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80%; height: 500px; background: radial-gradient(circle, rgba(255, 153, 0, 0.08) 0%, transparent 60%); filter: blur(80px); z-index: -1; pointer-events: none; }
+        .auth-container { max-width: 450px; width: 100%; margin: auto; z-index: 1; }
+        .glass-card { background: rgba(18, 21, 28, 0.6); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); padding: 40px; }
+        .nav-tabs { border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 30px; }
+        .nav-tabs .nav-link { color: #64748b; font-weight: 600; border: none; padding-bottom: 15px; background: transparent; transition: all 0.3s; }
+        .nav-tabs .nav-link:hover { color: #cbd5e1; }
+        .nav-tabs .nav-link.active { color: #ff9900; background: transparent; border-bottom: 2px solid #ff9900; }
+        .form-control { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff; border-radius: 10px; padding: 14px 20px; transition: all 0.3s; }
+        .form-control:focus { background: rgba(255, 255, 255, 0.05); border-color: #ff9900; box-shadow: 0 0 0 4px rgba(255, 153, 0, 0.1); color: #fff; }
+        .form-control::placeholder { color: #64748b; }
+        .form-label { font-size: 0.85rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .btn-aws { background-color: #ff9900; color: #000000; padding: 14px; border-radius: 10px; font-weight: 700; font-size: 1.1rem; border: none; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(255, 153, 0, 0.2); width: 100%; margin-top: 10px; }
+        .btn-aws:hover { background-color: #ffaa33; transform: translateY(-2px); box-shadow: 0 0 25px rgba(255, 153, 0, 0.4); }
+        .back-link { color: #64748b; text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 20px; transition: color 0.3s; }
+        .back-link:hover { color: #ffffff; }
+        .alert { background: rgba(255, 153, 0, 0.1); border: 1px solid rgba(255, 153, 0, 0.3); color: #ffaa33; }
+    </style>
+</head>
+<body>
+
+<div class="container auth-container">
+    <a href="{{ url_for('index') }}" class="back-link">← Ana Sayfaya Dön</a>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert rounded-3 mb-4 text-center" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="glass-card">
+        <h3 class="text-center fw-bold mb-4" style="letter-spacing: 1px;">☁️ CloudVault</h3>
+        
+        <ul class="nav nav-tabs justify-content-center" id="authTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#loginPanel" type="button" role="tab">Giriş Yap</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#registerPanel" type="button" role="tab">Kayıt Ol</button>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-4" id="authTabsContent">
+            <div class="tab-pane fade show active" id="loginPanel" role="tabpanel">
+                <form action="{{ url_for('login') }}" method="post">
+                    <div class="mb-4">
+                        <label class="form-label">Kullanıcı Adı</label>
+                        <input type="text" name="kullanici_adi" class="form-control" placeholder="Kullanıcı adınızı girin" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Şifre</label>
+                        <input type="password" name="sifre" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-aws">Oturum Aç</button>
+                </form>
+            </div>
+            
+            <div class="tab-pane fade" id="registerPanel" role="tabpanel">
+                <form action="{{ url_for('register') }}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Kullanıcı Adı</label>
+                        <input type="text" name="kullanici_adi" class="form-control" placeholder="Benzersiz bir ad seçin" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">E-Posta</label>
+                        <input type="email" name="email" class="form-control" placeholder="ornek@email.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Telefon</label>
+                        <input type="tel" name="telefon" class="form-control" placeholder="05XX XXX XX XX" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Şifre</label>
+                        <input type="password" name="sifre" class="form-control" placeholder="Güçlü bir şifre belirleyin" required>
+                    </div>
+                    <button type="submit" class="btn btn-aws">Ücretsiz Hesap Oluştur</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
